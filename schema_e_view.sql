@@ -1,3 +1,8 @@
+-- Limpeza inicial para remover travamentos de dependências
+DROP VIEW IF EXISTS vw_predicao_evasao CASCADE;
+DROP TABLE IF EXISTS aluno_novo CASCADE;
+DROP TABLE IF EXISTS alunos_treino CASCADE;
+
 -- 1. Tabela de Treino (Histórico)
 CREATE TABLE IF NOT EXISTS alunos_treino (
     id SERIAL PRIMARY KEY,
@@ -11,7 +16,7 @@ CREATE TABLE IF NOT EXISTS alunos_treino (
     "Abandona_até_o_próximo_semestre" VARCHAR(10)
 );
 
--- 2. Tabela de Alunos Novos a Serem Avaliados
+-- 2. Tabela de Alunos Novos
 CREATE TABLE IF NOT EXISTS aluno_novo (
     id_aluno VARCHAR(50) PRIMARY KEY,
     frequencia VARCHAR(50),
@@ -23,8 +28,7 @@ CREATE TABLE IF NOT EXISTS aluno_novo (
     progresso_curso VARCHAR(50)
 );
 
--- 3. View que faz o cálculo do Naive Bayes de forma manual
-DROP VIEW IF EXISTS vw_predicao_evasao CASCADE;
+-- 3. View do Naive Bayes
 CREATE OR REPLACE VIEW vw_predicao_evasao AS
 WITH Totais AS (
     SELECT
