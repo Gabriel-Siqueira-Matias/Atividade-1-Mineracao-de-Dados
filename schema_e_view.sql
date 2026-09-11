@@ -1,10 +1,11 @@
--- Limpeza inicial para remover travamentos de dependências
+-- Limpeza inicial para prevenir conflitos e travamentos de dependência
 DROP VIEW IF EXISTS vw_predicao_evasao CASCADE;
+DROP VIEW IF EXISTS vw_log_odds_categorias CASCADE;
 DROP TABLE IF EXISTS aluno_novo CASCADE;
 DROP TABLE IF EXISTS alunos_treino CASCADE;
 
 -- 1. Tabela de Treino (Histórico)
-CREATE TABLE IF NOT EXISTS alunos_treino (
+CREATE TABLE alunos_treino (
     id SERIAL PRIMARY KEY,
     "Frequência_nas_aulas" VARCHAR(50),
     "Média_das_notas" VARCHAR(50),
@@ -16,8 +17,8 @@ CREATE TABLE IF NOT EXISTS alunos_treino (
     "Abandona_até_o_próximo_semestre" VARCHAR(10)
 );
 
--- 2. Tabela de Alunos Novos
-CREATE TABLE IF NOT EXISTS aluno_novo (
+-- 2. Tabela de Alunos Novos a Serem Avaliados
+CREATE TABLE aluno_novo (
     id_aluno VARCHAR(50) PRIMARY KEY,
     frequencia VARCHAR(50),
     media_notas VARCHAR(50),
@@ -28,8 +29,57 @@ CREATE TABLE IF NOT EXISTS aluno_novo (
     progresso_curso VARCHAR(50)
 );
 
--- 3. View do Naive Bayes
-CREATE OR REPLACE VIEW vw_predicao_evasao AS
+-- 3. View para Log-Odds Individuais das Categorias
+CREATE VIEW log_odds AS
+WITH Totais AS (
+    SELECT
+        SUM(CASE WHEN "Abandona_até_o_próximo_semestre" = 'Sim' THEN 1 ELSE 0 END) AS qnt_sim,
+        SUM(CASE WHEN "Abandona_até_o_próximo_semestre" = 'Não' THEN 1 ELSE 0 END) AS qnt_nao
+    FROM alunos_treino
+),
+UnificacaoCategorias AS (
+    SELECT 'Frequência_nas_aulas' AS feature, "Frequência_nas_aulas" AS categoria, "Abandona_até_o_próximo_semestre" AS classe FROM alunos_treino
+    UNION ALL
+    SELECT 'Média_das_notas', "Média_das_notas", "Abandona_até_o_próximo_semestre" FROM alunos_treino
+    UNION ALL
+    SELECT 'Disciplinas_reprovadas', "Disciplinas_reprovadas", "Abandona_até_o_próximo_semestre" FROM alunos_treino
+    UNION ALL
+    SELECT 'Participação_nas_atividades', "Participação_nas_atividades", "Abandona_até_o_próximo_semestre" FROM alunos_treino
+    UNION ALL
+    SELECT 'Situação_financeira', "Situação_financeira", "Abandona_até_o_próximo_semestre" FROM alunos_treino
+    UNION ALL
+    SELECT 'Carga_de_trabalho', "Carga_de_trabalho", "Abandona_até_o_próximo_semestre" FROM alunos_treino
+    UNION ALL
+    SELECT 'Progresso_no_curso', "Progresso_no_curso", "Abandona_até_o_próximo_semestre" FROM alunos_treino
+),
+Contagens AS (
+    SELECT
+        feature,
+        categoria,
+        SUM(CASE WHEN classe = 'Sim' THEN 1 ELSE 0 END) AS contagem_sim,
+        SUM(CASE WHEN classe = 'Não' THEN 1 ELSE 0 END) AS contagem_nao
+    FROM UnificacaoCategorias
+    WHERE categoria IS NOT NULL
+    GROUP BY feature, categoria
+),
+Probabilidades AS (
+    SELECT
+        c.feature,
+        c.categoria,
+        CAST(c.contagem_sim + 1 AS FLOAT) / (t.qnt_sim + 3) AS p_cond_sim,
+        CAST(c.contagem_nao + 1 AS FLOAT) / (t.qnt_nao + 3) AS p_cond_nao
+    FROM Contagens c
+    CROSS JOIN Totais t
+)
+SELECT
+    feature AS "Atributo",
+    categoria AS "Categoria / Valor",
+    ROUND(CAST(LN(p_cond_sim / p_cond_nao) AS NUMERIC), 4) AS "Log-Odds Ratio (Peso Evasão)"
+FROM Probabilidades
+ORDER BY "Atributo", "Categoria / Valor";
+
+-- 4. View da Predição Naive Bayes dos Novos Alunos
+CREATE VIEW predicao_evasao AS
 WITH Totais AS (
     SELECT
         COUNT(*) AS total_geral,
@@ -107,8 +157,8 @@ Scores AS (
 )
 SELECT
     id_aluno AS "Aluno",
-    ROUND(CAST((score_sim / (score_sim + score_nao)) * 100 AS NUMERIC), 2) AS "Probabilidade de Evasão (%)",
-    ROUND(CAST((score_nao / (score_sim + score_nao)) * 100 AS NUMERIC), 2) AS "Probabilidade de Permanência (%)",
+    ROUND(CAST((score_sim / (score_sim + score_nao)) * 100 AS NUMERIC), 2) AS "Probabilidade Evasão (%)",
+    ROUND(CAST((score_nao / (score_sim + score_nao)) * 100 AS NUMERIC), 2) AS "Probabilidade Permanência (%)",
     CASE
         WHEN (score_sim / (score_sim + score_nao)) > 0.50 THEN '🚨 ALTO RISCO DE EVASÃO'
         ELSE '✅ BAIXO RISCO / PERMANÊNCIA'
