@@ -53,10 +53,6 @@ O domínio analisado é o **Educacional**, com foco em prever a **probabilidade 
 3. **Discretização via SQL:** Views no PostgreSQL (`alunos_treino_discretizado` e `aluno_novo_discretizado`) aplicam a lógica de categorização dinamicamente.
 4. **Modelagem & Predição:** Views dedicadas calculam a matriz de **Log-Odds** e realizam a classificação por **Naive Bayes** (Laplace Smoothing).
 
-# 🎓 Sistema de Predição de Evasão Acadêmica (Naive Bayes no PostgreSQL)
-
-Este projeto implementa um modelo preditivo de evasão escolar baseado no algoritmo **Naive Bayes** totalmente processado dentro do **PostgreSQL** através de **SQL Views**. O Python é utilizado para a geração dos dados sintéticos, carga no banco e exportação dos relatórios finais em CSV.
-
 ---
 
 ## 🚀 Como Executar o Projeto
