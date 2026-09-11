@@ -6,6 +6,7 @@ DROP VIEW IF EXISTS alunos_treino_discretizado CASCADE;
 DROP TABLE IF EXISTS aluno_novo CASCADE;
 DROP TABLE IF EXISTS alunos_treino CASCADE;
 
+
 -- 1. Tabela de Treino (Recebe valores numéricos/específicos)
 CREATE TABLE alunos_treino (
     id SERIAL PRIMARY KEY,
@@ -20,6 +21,7 @@ CREATE TABLE alunos_treino (
     "Abandona_até_o_próximo_semestre" VARCHAR(10)
 );
 
+
 -- 2. Tabela de Novos Alunos (Recebe valores numéricos/específicos)
 CREATE TABLE aluno_novo (
     id_aluno INT PRIMARY KEY,
@@ -32,6 +34,7 @@ CREATE TABLE aluno_novo (
     progresso_curso INT,
     deslocamento VARCHAR(50)
 );
+
 
 -- 3. View para Discretizar a Tabela de Treino
 CREATE VIEW alunos_treino_discretizado AS
@@ -75,6 +78,7 @@ SELECT
     "Abandona_até_o_próximo_semestre"
 FROM alunos_treino;
 
+
 -- 4. View para Discretizar os Novos Alunos
 CREATE VIEW aluno_novo_discretizado AS
 SELECT
@@ -115,6 +119,7 @@ SELECT
 
     deslocamento
 FROM aluno_novo;
+
 
 -- 5. View Log-Odds (Calculado a partir do Treino Discretizado)
 CREATE VIEW log_odds AS
@@ -166,6 +171,7 @@ SELECT
     ROUND(CAST(LN(p_cond_sim / p_cond_nao) AS NUMERIC), 4) AS "Log-Odds Ratio (Peso Evasão)"
 FROM Probabilidades
 ORDER BY "Log-Odds Ratio (Peso Evasão)" DESC;
+
 
 -- 6. View Predição Naive Bayes (Compara Treino Discretizado vs Novos Alunos Discretizados)
 CREATE VIEW predicao_evasao AS
@@ -259,4 +265,4 @@ SELECT
         ELSE '✅ BAIXO RISCO / PERMANÊNCIA'
     END AS "Situação Final"
 FROM Scores
-ORDER BY "Aluno";
+ORDER BY "Aluno" ASC;
