@@ -6,7 +6,7 @@
 
 ---
 
-## **1. Contexto**
+## **Contexto**
 
 Este trabalho consiste em uma aplicação prática do algoritmo **Naive Bayes**, uma variação do Teorema de Bayes utilizada para calcular a probabilidade de um evento com base em conhecimentos prévios e novas evidências. A principal característica do Naive Bayes é a independência condicional entre todas as *features*.
 
@@ -14,7 +14,7 @@ O domínio analisado é o **Educacional**, com foco em prever a **probabilidade 
 
 ---
 
-## **2. Atributos do Modelo (Features)**
+## **Atributos do Modelo (Features)**
 
 ### **Explicação das Features**
 
@@ -46,12 +46,23 @@ O domínio analisado é o **Educacional**, com foco em prever a **probabilidade 
 
 ---
 
-## **3. Arquitetura da Solução**
+## 📂 Estrutura dos Arquivos do Projeto
 
-1. **Geração de Dados:** Scripts em Python (`NumPy`/`Pandas`) geram dados sintéticos com valores numéricos contínuos/específicos.
-2. **Carga no PostgreSQL:** Inserção direta dos dados brutos nas tabelas `alunos_treino` e `aluno_novo`.
-3. **Discretização via SQL:** Views no PostgreSQL (`alunos_treino_discretizado` e `aluno_novo_discretizado`) aplicam a lógica de categorização dinamicamente.
-4. **Modelagem & Predição:** Views dedicadas calculam a matriz de **Log-Odds** e realizam a classificação por **Naive Bayes** (Laplace Smoothing).
+* **`gerador_alunos_treino.py`**:
+  Gera a base histórica com 1.000 registros de alunos (`tabela_alunos_treino.csv`). Utiliza distribuições estatísticas como *Beta* (para notas e frequência) e *Poisson* (para reprovações) para criar cenários realistas e calcular probabilisticamente qual aluno abandona ou permanece no curso.
+
+* **`gerador_alunos_novos.py`**:
+  Gera a lista de novos alunos sem rótulo de evasão (`tabela_alunos_novos.csv`) que servirão de entrada para o modelo fazer as predições de risco.
+
+* **`schema_e_view.sql`**:
+  Arquivo contendo os scripts SQL de criação e modelagem do banco de dados:
+  * **Tabelas**: `alunos_treino` e `aluno_novo` (criada com `CREATE TABLE IF NOT EXISTS` para preservar dados salvos quando não houver sobrescrita).
+  * **Views de Discretização**: `alunos_treino_discretizado` e `aluno_novo_discretizado`, que categorizam variáveis contínuas em intervalos (*Baixa*, *Média*, *Alta*, etc.).
+  * **View `log_odds`**: Calcula o peso de cada característica na probabilidade de evasão.
+  * **View `predicao_evasao`**: Implementa o cálculo otimizado do Naive Bayes (usando probabilidades condicionais com suavização de Laplace e *Log-Scores*) para prever a probabilidade de evasão de cada novo aluno.
+
+* **`main.py`**:
+  Script central que gerencia o fluxo de trabalho. Ele verifica se o banco já está estruturado, pergunta ao usuário se deseja atualizar os dados mantendo ou sobrescrevendo tabelas (preservando `aluno_novo` quando a resposta for 'Não'), executa o script SQL e exporta os relatórios finais (`log_odds.csv` e `predicao_evasao.csv`).
 
 ---
 
@@ -127,23 +138,3 @@ python gerador_alunos_novos.py
 # 3. Executar o pipeline de carga, processamento SQL e exportação dos resultados
 python main.py
 ```
-
----
-
-## 📂 Estrutura dos Arquivos do Projeto
-
-* **`gerador_alunos_treino.py`**:
-  Gera a base histórica com 1.000 registros de alunos (`tabela_alunos_treino.csv`). Utiliza distribuições estatísticas como *Beta* (para notas e frequência) e *Poisson* (para reprovações) para criar cenários realistas e calcular probabilisticamente qual aluno abandona ou permanece no curso.
-
-* **`gerador_alunos_novos.py`**:
-  Gera a lista de novos alunos sem rótulo de evasão (`tabela_alunos_novos.csv`) que servirão de entrada para o modelo fazer as predições de risco.
-
-* **`schema_e_view.sql`**:
-  Arquivo contendo os scripts SQL de criação e modelagem do banco de dados:
-  * **Tabelas**: `alunos_treino` e `aluno_novo` (criada com `CREATE TABLE IF NOT EXISTS` para preservar dados salvos quando não houver sobrescrita).
-  * **Views de Discretização**: `alunos_treino_discretizado` e `aluno_novo_discretizado`, que categorizam variáveis contínuas em intervalos (*Baixa*, *Média*, *Alta*, etc.).
-  * **View `log_odds`**: Calcula o peso de cada característica na probabilidade de evasão.
-  * **View `predicao_evasao`**: Implementa o cálculo otimizado do Naive Bayes (usando probabilidades condicionais com suavização de Laplace e *Log-Scores*) para prever a probabilidade de evasão de cada novo aluno.
-
-* **`main.py`**:
-  Script central que gerencia o fluxo de trabalho. Ele verifica se o banco já está estruturado, pergunta ao usuário se deseja atualizar os dados mantendo ou sobrescrevendo tabelas (preservando `aluno_novo` quando a resposta for 'Não'), executa o script SQL e exporta os relatórios finais (`log_odds.csv` e `predicao_evasao.csv`).
