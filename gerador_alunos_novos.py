@@ -1,7 +1,7 @@
 import csv
 import random
 
-N = 1000
+N = 100
 SEED = 42
 MAX_SEMESTRE = 10
 
@@ -9,7 +9,7 @@ random.seed(SEED)
 
 def gerar_aluno(numero):
     return {
-        "id_aluno": f"Aluno {numero}",
+        "id_aluno": numero,
 
         # Frequência específica: 0% até 100%
         "frequencia": random.randint(0, 100),

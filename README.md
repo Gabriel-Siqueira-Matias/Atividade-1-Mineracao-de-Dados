@@ -1,37 +1,54 @@
 # **Mineração de Dados - Atividade 1**
 
-&nbsp;&nbsp;&nbsp;**Alunos:**  
-&nbsp;&nbsp;&nbsp;&nbsp; Gabriel Siqueira Matias - 2023278440020  
-&nbsp;&nbsp;&nbsp;&nbsp; Pedro Alexandre Souza de Campos - 2023278440034  
-<br>
-<br>
-# **1 - Contexto**
-
-&nbsp;&nbsp;&nbsp;&nbsp;Esse trabalho se trata de uma aplicação prática do algoritmo Naive Bayes, o qual se trata de uma variação do Teorema de Bayes, o qual é uma fórmula matemática usada para calcular a probabilidade de um evento acontecer com base em conhecimentos prévios e novas evidências, a diferença entre o Teorema de Bayes e o algoritmo Naive Bayes, é que o algoritmo trata cada feature como independente entre elas.
-
-&nbsp;&nbsp;&nbsp;&nbsp;O domínio usado foi educação, no caso, analisar a possibilidade de um aluno de um determinado curso deixar o mesmo até o próximo semestre.
+**Alunos:**
+* Gabriel Siqueira Matias - `2023278440020`
+* Pedro Alexandre Souza de Campos - `2023278440034`
 
 ---
-**As features e sua explicação:**
+
+## **1. Contexto**
+
+Este trabalho consiste em uma aplicação prática do algoritmo **Naive Bayes** — uma variação do Teorema de Bayes utilizada para calcular a probabilidade de um evento com base em conhecimentos prévios e novas evidências. A principal característica do Naive Bayes é a premissa de independência condicional entre todas as *features* (atributos).
+
+O domínio analisado é o **Educacional**, com foco em prever a **probabilidade de evasão acadêmica** (se um aluno deixará o curso até o próximo semestre).
+
+---
+
+## **2. Atributos do Modelo (Features)**
+
+### **Explicação das Features**
 
 | Feature | Explicação |
 | :--- | :--- |
-| **Participação nas atividades** | Um aluno que entrega poucos trabalhos ou participa pouco tende a demonstrar menor envolvimento com o curso. |
-| **Situação financeira** | Problemas financeiros podem fazer com que o aluno precise trabalhar mais ou até abandonar os estudos. |
-| **Carga de trabalho do aluno** | Quanto maior a carga de trabalho, menor pode ser o tempo disponível para estudar e frequentar as aulas. |
-| **Progresso no curso** | Alunos no início do curso podem ter maior facilidade para desistir, enquanto quem está próximo de concluir tende a permanecer. |
-| **Frequência nas aulas** | Alunos que começam a faltar muito podem estar desmotivados ou com dificuldades para continuar o curso. |
-| **Média das notas** | Notas muito baixas podem indicar dificuldade acadêmica, aumentando a chance de desistência. |
-| **Quantidade de disciplinas reprovadas** | Muitas reprovações atrasam a formação e podem causar desmotivação. |
+| **Frequência nas aulas** | Alunos com alto índice de faltas tendem a demonstrar desmotivação ou dificuldades de acompanhamento. |
+| **Média das notas** | Desempenho acadêmico baixo é um indicador direto de risco de desistência. |
+| **Disciplinas reprovadas** | O acúmulo de reprovações atrasa a integralização curricular e gera desmotivação. |
+| **Participação nas atividades** | Baixo engajamento em trabalhos e tarefas sinaliza menor vínculo com o curso. |
+| **Situação financeira** | Instabilidade financeira frequentemente exige priorização do trabalho em detrimento dos estudos. |
+| **Carga de trabalho** | Horas semanais de trabalho elevadas reduzem o tempo disponível para estudo. |
+| **Progresso no curso** | Alunos nos semestres iniciais possuem maior taxa de evasão comparados aos concluintes. |
+| **Deslocamento** | Dificuldades de logística e transporte podem impactar a assiduidade e retenção. |
 
 ---
-**As features e sua discretização:**
-| Feature | Discretização |
-| :--- | :--- |
-| **Participação nas atividades** | Alta &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ Média &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ Baixa |
-| **Situação financeira** | Estável &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ Dificuldade moderada &nbsp;&nbsp;&nbsp;/ Alta dificuldade |
-| **Carga de trabalho do aluno** | Não trabalha &nbsp;&nbsp;&nbsp;&nbsp;/ Até 30h/semana &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ Mais de 30h/semana |
-| **Progresso no curso** | Inicial (0–25%) / Intermediário (26–75%) &nbsp;/ Final (>75%) |
-| **Frequência nas aulas** | Alta: ≥ 85% &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ Média: 70–84% &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ Baixa: &lt; 70% |
-| **Média das notas** | Alta: ≥ 8 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ Média: 6–7,9 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ Baixa: &lt; 6 |
-| **Quantidade de disciplinas reprovadas** | Nenhuma &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ 1–2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ 3 ou mais |
+
+### **Regras de Discretização**
+
+| Feature | Valores Brutos (Específicos) | Categorias Discretizadas |
+| :--- | :--- | :--- |
+| **Frequência nas aulas** | `0%` a `100%` | **Baixa:** `< 70%` <br> **Média:** `70% – 84%` <br> **Alta:** `≥ 85%` |
+| **Média das notas** | `0.0` a `10.0` | **Baixa:** `< 6.0` <br> **Média:** `6.0 – 7.9` <br> **Alta:** `≥ 8.0` |
+| **Disciplinas reprovadas** | `0` a `8+` | **Baixa:** `0 – 1` <br> **Média:** `2 – 3` <br> **Alta:** `≥ 4` |
+| **Participação nas atividades** | *Qualitativo* | `Baixa` \| `Média` \| `Alta` |
+| **Situação financeira** | *Qualitativo* | `Dificuldade alta` \| `Dificuldade moderada` \| `Estável` |
+| **Carga de trabalho** | `0` a `60` horas/semana | **Não trabalha:** `0h` <br> **Até 30h:** `1 – 30h` <br> **Mais de 30h:** `> 30h` |
+| **Progresso no curso** | `1º` ao `10º` semestre | **Inicial:** `1º – 2º sem.` <br> **Intermediário:** `3º – 6º sem.` <br> **Final:** `≥ 7º sem.` |
+| **Deslocamento** | *Qualitativo* | `Sem impacto` \| `Impacto moderado` \| `Impacto alto` |
+
+---
+
+## **3. Arquitetura da Solução**
+
+1. **Geração de Dados:** Scripts em Python (`NumPy`/`Pandas`) geram dados sintéticos com valores numéricos contínuos/específicos.
+2. **Carga no PostgreSQL:** Inserção direta dos dados brutos nas tabelas `alunos_treino` e `aluno_novo`.
+3. **Discretização via SQL:** Views no PostgreSQL (`alunos_treino_discretizado` e `aluno_novo_discretizado`) aplicam a lógica de categorização dinamicamente.
+4. **Modelagem & Predição:** Views dedicadas calculam a matriz de **Log-Odds** e realizam a classificação por **Naive Bayes** (Laplace Smoothing).

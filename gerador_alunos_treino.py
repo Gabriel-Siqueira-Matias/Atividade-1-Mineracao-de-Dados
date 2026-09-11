@@ -5,7 +5,7 @@ import pandas as pd
 # CONFIGURAÇÕES
 # ==========================================================
 
-N = 1_000_000
+N = 1_000
 SEED = 42
 MAX_SEMESTRE = 10
 

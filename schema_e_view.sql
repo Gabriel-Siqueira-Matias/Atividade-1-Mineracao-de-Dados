@@ -22,7 +22,7 @@ CREATE TABLE alunos_treino (
 
 -- 2. Tabela de Novos Alunos (Recebe valores numéricos/específicos)
 CREATE TABLE aluno_novo (
-    id_aluno VARCHAR(50) PRIMARY KEY,
+    id_aluno INT PRIMARY KEY,
     frequencia NUMERIC,
     media_notas NUMERIC(4,2),
     disciplinas_reprov INT,
@@ -259,4 +259,4 @@ SELECT
         ELSE '✅ BAIXO RISCO / PERMANÊNCIA'
     END AS "Situação Final"
 FROM Scores
-ORDER BY "Aluno" ASC;
+ORDER BY "Aluno";
