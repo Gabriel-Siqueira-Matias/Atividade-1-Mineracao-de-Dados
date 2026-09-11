@@ -1,6 +1,6 @@
--- Limpeza inicial para prevenir conflitos e travamentos de dependência
-DROP VIEW IF EXISTS vw_predicao_evasao CASCADE;
-DROP VIEW IF EXISTS vw_log_odds_categorias CASCADE;
+-- Limpeza inicial para prevenir conflitos
+DROP VIEW IF EXISTS predicao_evasao CASCADE;
+DROP VIEW IF EXISTS log_odds CASCADE;
 DROP TABLE IF EXISTS aluno_novo CASCADE;
 DROP TABLE IF EXISTS alunos_treino CASCADE;
 
@@ -74,9 +74,10 @@ Probabilidades AS (
 SELECT
     feature AS "Atributo",
     categoria AS "Categoria / Valor",
-    ROUND(CAST(LN(p_cond_sim / p_cond_nao) AS NUMERIC), 4) AS "Log-Odds Ratio (Peso Evasão)"
+    ROUND(CAST(LN(p_cond_sim / p_cond_nao) AS NUMERIC), 4) AS "Log-Odds"
 FROM Probabilidades
-ORDER BY "Atributo", "Categoria / Valor";
+-- ORDENAÇÃO: Valores mais altos no topo (DESC) até os mais baixos
+ORDER BY "Log-Odds" DESC;
 
 -- 4. View da Predição Naive Bayes dos Novos Alunos
 CREATE VIEW predicao_evasao AS
@@ -163,4 +164,6 @@ SELECT
         WHEN (score_sim / (score_sim + score_nao)) > 0.50 THEN '🚨 ALTO RISCO DE EVASÃO'
         ELSE '✅ BAIXO RISCO / PERMANÊNCIA'
     END AS "Situação Final"
-FROM Scores;
+FROM Scores
+-- ORDENAÇÃO: Ordenado pelo ID/Nome do aluno (Aluno 1, Aluno 2, etc.)
+ORDER BY "Aluno" ASC;

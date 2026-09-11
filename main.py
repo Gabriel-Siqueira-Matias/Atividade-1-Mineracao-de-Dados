@@ -20,7 +20,7 @@ def executar_pipeline(lista_novos_alunos):
     print("✅ Schema, tabelas e views recriados com sucesso!")
 
     # 2. Popula a tabela de treino a partir do CSV
-    df_treino = pd.read_csv("dados_evasao_alunos_bayes_1M.csv")
+    df_treino = pd.read_csv("dados_evasao_alunos.csv")
     df_treino.to_sql("alunos_treino", engine, if_exists="append", index=False)
     print("✅ Dados do CSV enviados para a tabela 'alunos_treino'!")
 
@@ -31,17 +31,17 @@ def executar_pipeline(lista_novos_alunos):
     df_novos.to_sql("aluno_novo", engine, if_exists="append", index=False)
     print("✅ Novos alunos cadastrados na tabela 'aluno_novo'!")
 
-    # 4. Consulta os DataFrames
-    df_log_odds_categorias = pd.read_sql("SELECT * FROM log_odds;", engine)
-    df_resultado_predicao = pd.read_sql("SELECT * FROM predicao_evasao;", engine)
+    # 4. Consulta os DataFrames respeitando as ordenações
+    df_log_odds_categorias = pd.read_sql('SELECT * FROM log_odds ORDER BY "Log-Odds" DESC;', engine)
+    df_resultado_predicao = pd.read_sql('SELECT * FROM predicao_evasao ORDER BY "Aluno" ASC;', engine)
 
     # 5. Exporta para arquivos CSV
     df_log_odds_categorias.to_csv("log_odds.csv", index=False, encoding="utf-8-sig")
     df_resultado_predicao.to_csv("predicao_evasao.csv", index=False, encoding="utf-8-sig")
 
     print("\n📁 Arquivos gerados com sucesso:")
-    print(" - log_odds_categorias.csv")
-    print(" - resultado_predicao_alunos.csv")
+    print(" - log_odds.csv (Ordenado dos maiores pesos de evasão para os menores)")
+    print(" - predicao_evasao.csv (Ordenado por Aluno 1, Aluno 2, etc.)")
 
 if __name__ == "__main__":
     novos_alunos = [
